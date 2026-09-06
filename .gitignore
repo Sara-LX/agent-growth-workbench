@@ -1,3 +1,6 @@
 __pycache__/
 .DS_Store
 Thumbs.db
+github_deploy
+github_known_hosts
+gitssh.cmd
