@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AI Agent 成长工作台</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <div class="hero__top">
+        <div>
+          <p class="eyebrow">AI AGENT CAREER LAB</p>
+          <h1>AI Agent 成长工作台</h1>
+        </div>
+        <div class="level-badge" id="levelBadge">L0 起步</div>
+      </div>
+      <p class="hero__sub">一条学习线，一条大厂工作台线。学到哪里，就把哪里变成简历项目。</p>
+      <div class="hero__stats">
+        <div class="stat">
+          <strong id="completedCount">0</strong>
+          <span>已学知识点</span>
+        </div>
+        <div class="stat">
+          <strong id="projectCount">0</strong>
+          <span>简历项目</span>
+        </div>
+        <div class="stat">
+          <strong id="workLoopCount">0</strong>
+          <span>工单闭环</span>
+        </div>
+      </div>
+    </header>
+
+    <nav class="tabs" id="tabs">
+      <button class="tab is-active" data-tab="learn">学习路线</button>
+      <button class="tab" data-tab="workbench">大厂工单</button>
+      <button class="tab" data-tab="agents">多 Agent</button>
+      <button class="tab" data-tab="radar">能力雷达</button>
+      <button class="tab" data-tab="trend">趋势情报</button>
+    </nav>
+
+    <main>
+      <section class="view is-active" id="view-learn">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">LEARNING TRACK</p>
+            <h2>L0 → L7 全链路</h2>
+          </div>
+          <button class="ghost-btn" id="resetProgress">重置进度</button>
+        </div>
+        <div class="path-intro">
+          <span class="dot dot--blue"></span>
+          <p>每个阶段学完，工作台会自动解锁一个对应的大厂工单。工单产物就是你的项目。</p>
+        </div>
+        <div id="curriculumList" class="stage-list"></div>
+      </section>
+
+      <section class="view" id="view-workbench">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">WORKBENCH</p>
+            <h2>大厂工作流模拟</h2>
+          </div>
+        </div>
+        <div id="workbench"></div>
+      </section>
+
+      <section class="view" id="view-agents">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">MULTI-AGENT</p>
+            <h2>六类角色协作</h2>
+          </div>
+        </div>
+        <p class="muted">主控统一编排，共享你的学习进度与项目档案。点击角色快速派发一条协作消息。</p>
+        <div class="agent-roles" id="agentRoles"></div>
+        <div class="chat" id="chatLog" aria-live="polite"></div>
+        <div class="chat-input">
+          <input id="chatInput" type="text" placeholder="问 Mentor：RAG 和普通搜索到底差在哪？" />
+          <button id="sendChat">发送</button>
+        </div>
+      </section>
+
+      <section class="view" id="view-radar">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">SKILL RADAR</p>
+            <h2>人岗匹配度</h2>
+          </div>
+        </div>
+        <div class="radar-wrap">
+          <canvas id="radarCanvas" width="360" height="360"></canvas>
+          <div class="radar-legend" id="radarLegend"></div>
+        </div>
+        <div class="gap-card" id="gapCard"></div>
+      </section>
+
+      <section class="view" id="view-trend">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">MARKET SIGNAL</p>
+            <h2>大厂 JD 与趋势</h2>
+          </div>
+          <button class="ghost-btn" id="refreshTrend">更新信号</button>
+        </div>
+        <div class="trend-list" id="trendList"></div>
+        <div class="note-card">
+          <p>当前版本是本地离线 MVP。点“更新信号”会打开真实招聘/搜索页；要全自动抓取并写进学习权重，后续再接 MCP / 后端情报 Agent。</p>
+        </div>
+      </section>
+    </main>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
