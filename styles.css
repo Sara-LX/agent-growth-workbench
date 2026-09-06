@@ -360,6 +360,57 @@ h2 {
   padding: 0 17px 17px;
 }
 
+.lesson-block {
+  margin-bottom: 8px;
+  padding: 12px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(234, 242, 255, 0.9), rgba(255, 240, 248, 0.7));
+}
+
+.lesson-block__head {
+  margin-bottom: 10px;
+  color: #3e5b9c;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.lesson-item {
+  margin-bottom: 11px;
+}
+
+.lesson-item:last-child {
+  margin-bottom: 0;
+}
+
+.lesson-item strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.lesson-item p,
+.practice p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.practice {
+  margin-top: 12px;
+  padding-top: 11px;
+  border-top: 1px dashed rgba(123, 169, 255, 0.25);
+}
+
+.practice strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #b15f8b;
+  font-size: 12px;
+}
+
 .stage-card.is-open .stage-body {
   display: block;
 }

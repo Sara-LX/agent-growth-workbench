@@ -105,6 +105,23 @@
         `;
       }).join("");
 
+      const stageLesson = STAGE_LESSONS[stage.id] || { lessons: [], practice: "" };
+      const lessonsHtml = `
+        <div class="lesson-block">
+          <div class="lesson-block__head">重点讲解</div>
+          ${stageLesson.lessons.map((lesson) => `
+            <div class="lesson-item">
+              <strong>${lesson.title}</strong>
+              <p>${lesson.body}</p>
+            </div>
+          `).join("")}
+          <div class="practice">
+            <strong>小练习</strong>
+            <p>${stageLesson.practice}</p>
+          </div>
+        </div>
+      `;
+
       card.innerHTML = `
         <div class="stage-card__head">
           <div class="stage-id">${stage.id}</div>
@@ -119,6 +136,7 @@
         </div>
         <div class="stage-bar"><div class="stage-bar__fill" style="width:${progress.percent}%"></div></div>
         <div class="stage-body">
+          ${lessonsHtml}
           ${topicsHtml}
           <div class="stage-work">
             <p>对应大厂工单：${stage.workOrder.title}</p>
