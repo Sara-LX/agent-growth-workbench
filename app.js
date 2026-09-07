@@ -17,8 +17,10 @@
   function defaultState() {
     return {
       topics: {},
+      stagePassed: {},
       steps: {},
       done: {},
+      trendIndex: 0,
       lastTrendUpdate: null
     };
   }
@@ -93,10 +95,10 @@
 
       const topicsHtml = stage.topics.map((topic, topicIndex) => {
         const key = topicKey(stage.id, topicIndex);
-        const checked = state.topics[key] ? "checked" : "";
+        const checked = state.stagePassed[stage.id] ? "checked" : "";
         return `
           <div class="topic">
-            <input type="checkbox" id="${key}" data-stage="${stage.id}" data-index="${topicIndex}" ${checked} />
+            <input type="checkbox" id="${key}" data-stage="${stage.id}" data-index="${topicIndex}" ${checked} disabled />
             <label for="${key}">
               ${topic.name}
               <small>${topic.tip}</small>
@@ -138,6 +140,7 @@
         <div class="stage-body">
           ${lessonsHtml}
           ${topicsHtml}
+          <button class="primary-btn learn-btn" data-stage="${stage.id}">${state.stagePassed[stage.id] ? "重新测验" : "开始学习并测验"}</button>
           <div class="stage-work">
             <p>对应大厂工单：${stage.workOrder.title}</p>
             <span>${stage.workOrder.deliverable}</span>
@@ -154,15 +157,221 @@
     });
 
     $$(".topic input").forEach((input) => {
-      input.addEventListener("change", () => {
-        state.topics[input.id] = input.checked;
-        saveState();
-        renderHero();
-        renderCurriculum();
-        renderWorkbench();
-        renderRadar();
+      input.disabled = true;
+    });
+
+    $$(".learn-btn").forEach((button) => {
+      button.addEventListener("click", (event) => {
+        event.stopPropagation();
+        openStageLearning(button.dataset.stage);
       });
     });
+  }
+
+  function openStageLearning(stageId) {
+    const stage = CURRICULUM.find((item) => item.id === stageId);
+    if (!stage) return;
+    const lessons = (STAGE_LESSONS[stageId] || {}).lessons || [];
+    const practice = (STAGE_LESSONS[stageId] || {}).practice || "";
+    const quiz = STAGE_QUIZZES[stageId] || [];
+    const showCode = ["L0", "L1"].includes(stageId);
+
+    const overlay = document.createElement("div");
+    overlay.className = "modal";
+    overlay.id = "stageModal";
+    overlay.innerHTML = `
+      <div class="modal-card">
+        <div class="modal-head">
+          <div>
+            <p class="eyebrow">${stage.id} · 学习与测验</p>
+            <h2>${stage.title}</h2>
+          </div>
+          <button class="modal-close" data-close-modal>×</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-lesson-list">
+            ${lessons.map((lesson) => `
+              <div class="lesson-item">
+                <strong>${lesson.title}</strong>
+                <p>${lesson.body}</p>
+              </div>
+            `).join("")}
+          </div>
+          ${showCode ? `
+            <div class="code-practice">
+              <div class="code-practice__head">Python 小练习</div>
+              <p>${practice}</p>
+              <textarea id="practiceCode" spellcheck="false">print('hello')</textarea>
+              <button class="primary-btn" id="runCodeBtn">运行代码</button>
+              <pre class="code-output" id="codeOutput">运行结果会显示在这里</pre>
+            </div>
+          ` : `<div class="practice"><strong>小练习</strong><p>${practice}</p></div>`}
+          <div class="quiz-block">
+            <div class="quiz-block__head">阶段测验（通过后自动打勾）</div>
+            ${quiz.map((item, qi) => `
+              <div class="quiz-item" data-q="${qi}">
+                <p class="quiz-q">${qi + 1}. ${item.q}</p>
+                ${item.options.map((opt, oi) => `
+                  <label class="quiz-opt">
+                    <input type="radio" name="quiz-${stageId}" value="${oi}" />
+                    <span>${String.fromCharCode(65 + oi)}. ${opt}</span>
+                  </label>
+                `).join("")}
+                <div class="quiz-explain" data-explain="${qi}"></div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="ghost-btn" data-close-modal>关闭</button>
+          <button class="primary-btn" id="submitQuizBtn">提交测验</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    overlay.querySelectorAll("[data-close-modal]").forEach((btn) => {
+      btn.addEventListener("click", closeStageModal);
+    });
+
+    if (showCode) {
+      $("#runCodeBtn").addEventListener("click", () => {
+        const code = $("#practiceCode").value || "";
+        const output = runMiniPython(code);
+        $("#codeOutput").textContent = output || "(没有输出)";
+      });
+    }
+
+    $("#submitQuizBtn").addEventListener("click", () => submitStageQuiz(stageId));
+  }
+
+  function closeStageModal() {
+    const modal = $("#stageModal");
+    if (modal) modal.remove();
+  }
+
+  function submitStageQuiz(stageId) {
+    const quiz = STAGE_QUIZZES[stageId] || [];
+    let correct = 0;
+    quiz.forEach((item, qi) => {
+      const selected = document.querySelector(`input[name="quiz-${stageId}"]:checked`)?document.querySelectorAll(`input[name="quiz-${stageId}"]`)[0]:null;
+      const chosen = document.querySelector(`input[name="quiz-${stageId}"][value="${item.answer}"]`);
+      const inputs = document.querySelectorAll(`input[name="quiz-${stageId}"]`);
+      let userChoice = null;
+      inputs.forEach((input) => {
+        if (input.checked) userChoice = Number(input.value);
+      });
+      const isRight = userChoice === item.answer;
+      if (isRight) correct++;
+      const explainEl = document.querySelector(`[data-explain="${qi}"]`);
+      if (explainEl) {
+        explainEl.textContent = isRight ? `✅ ${item.explain}` : `❌ 正确答案 ${String.fromCharCode(65 + item.answer)}。${item.explain}`;
+      }
+      if (chosen) chosen.closest(".quiz-opt").classList.add("is-correct");
+    });
+
+    const rate = Math.round((correct / quiz.length) * 100);
+    const passed = rate >= 80;
+    const stage = CURRICULUM.find((item) => item.id === stageId);
+    if (passed && stage) {
+      state.stagePassed[stageId] = true;
+      stage.topics.forEach((_, index) => {
+        state.topics[topicKey(stageId, index)] = true;
+      });
+      saveState();
+      closeStageModal();
+      renderHero();
+      renderCurriculum();
+      renderWorkbench();
+      renderRadar();
+      showToast(`${stageId} 测验通过，知识点已自动打勾！`);
+    } else {
+      showToast(`正确率 ${rate}%，还差一点，再看讲解后重试。`);
+    }
+  }
+
+  function runMiniPython(code) {
+    const out = [];
+    const vars = {};
+    const lines = code.split(/\r?\n/);
+
+    function evaluate(expr) {
+      let s = String(expr).trim();
+      if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+        return s.slice(1, -1);
+      }
+      if (/^-?\d+(\.\d+)?$/.test(s)) return Number(s);
+      if (s === "True") return true;
+      if (s === "False") return false;
+      if (Object.prototype.hasOwnProperty.call(vars, s)) return vars[s];
+      const translated = s.replace(/\b[A-Za-z_]\w*\b/g, (m) => {
+        if (Object.prototype.hasOwnProperty.call(vars, m)) return JSON.stringify(vars[m]);
+        return m;
+      });
+      try {
+        return Function(`"use strict"; return (${translated});`)();
+      } catch (err) {
+        return s;
+      }
+    }
+
+    function execBlock(block, indent) {
+      let i = 0;
+      while (i < block.length) {
+        const line = block[i];
+        const currentIndent = (line.match(/^[ ]*/) || [""])[0].length;
+        if (currentIndent < indent) break;
+        const stmt = line.trim();
+        if (!stmt || stmt.startsWith("#")) {
+          i++;
+          continue;
+        }
+        if (stmt.startsWith("print(") && stmt.endsWith(")")) {
+          const inner = stmt.slice(6, -1);
+          const parts = inner.split(",").map((p) => evaluate(p.trim()));
+          out.push(parts.join(" "));
+          i++;
+          continue;
+        }
+        if (/^for\s+[A-Za-z_]\w*\s+in\s+range\((\d+)\)\s*:/.test(stmt)) {
+          const m = stmt.match(/^for\s+([A-Za-z_]\w*)\s+in\s+range\((\d+)\)\s*:/);
+          const varName = m[1];
+          const n = Number(m[2]);
+          let j = i + 1;
+          const child = [];
+          while (j < block.length && ((block[j].match(/^[ ]*/) || [""])[0].length > indent)) {
+            child.push(block[j]);
+            j++;
+          }
+          for (let k = 0; k < n; k++) {
+            vars[varName] = k;
+            execBlock(child, indent + 2);
+          }
+          i = j;
+          continue;
+        }
+        if (stmt.startsWith("if ") && stmt.endsWith(":")) {
+          const cond = evaluate(stmt.slice(3, -1));
+          let j = i + 1;
+          const child = [];
+          while (j < block.length && ((block[j].match(/^[ ]*/) || [""])[0].length > indent)) {
+            child.push(block[j]);
+            j++;
+          }
+          if (cond) execBlock(child, indent + 2);
+          i = j;
+          continue;
+        }
+        const assign = stmt.match(/^([A-Za-z_]\w*)\s*=\s*(.+)$/);
+        if (assign) {
+          vars[assign[1]] = evaluate(assign[2]);
+        }
+        i++;
+      }
+    }
+
+    execBlock(lines, 0);
+    return out.join("\n");
   }
 
   function renderWorkbench() {
@@ -409,7 +618,9 @@
   function renderTrends() {
     const list = $("#trendList");
     list.innerHTML = "";
-    TRENDS.forEach((trend) => {
+    const index = state.trendIndex || 0;
+    const trends = TREND_SNAPSHOTS[index] || TREND_SNAPSHOTS[0] || TRENDS;
+    trends.forEach((trend) => {
       const card = document.createElement("article");
       card.className = "trend-card";
       card.innerHTML = `
@@ -426,16 +637,12 @@
   }
 
   function refreshTrends() {
+    const index = state.trendIndex || 0;
+    state.trendIndex = (index + 1) % TREND_SNAPSHOTS.length;
     state.lastTrendUpdate = Date.now();
     saveState();
     renderTrends();
-    TRENDS.forEach((trend, index) => {
-      setTimeout(() => {
-        const url = `https://www.baidu.com/s?wd=${encodeURIComponent(trend.query)}`;
-        window.open(url, "_blank", "noopener");
-      }, index * 220);
-    });
-    showToast("已打开最新岗位/趋势搜索页；以后可接 MCP 自动抓取。");
+    showToast("趋势情报已刷新到下一组信号。");
   }
 
   function resetProgress() {

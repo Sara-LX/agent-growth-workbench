@@ -364,6 +364,77 @@ const STAGE_LESSONS = {
   }
 };
 
+const STAGE_QUIZZES = {
+  L0: [
+    {q:"下面哪个写法能让 Python 输出文字 hello？",options:["print('hello')","echo hello","console.log('hello')","print(hello)"],answer:0,explain:"字符串要加引号，print() 是输出函数。"},
+    {q:"range(3) 会依次产生哪几个数字？",options:["1,2,3","0,1,2","0,1,2,3","3,2,1"],answer:1,explain:"range 默认从 0 开始，不包含 3。"},
+    {q:"Agent 最核心的四个部分是什么？",options:["UI、数据库、缓存、域名","LLM、规划、工具、记忆","HTML、CSS、JS、JSON","产品、设计、运营、测试"],answer:1,explain:"Agent = LLM + 规划 + 工具 + 记忆。"},
+    {q:"模型产生幻觉的根本原因是什么？",options:["它一定联网搜索","它在预测下一个 token，不知道答案也会生成像答案的内容","它故意骗人","它只记得错误数据"],answer:1,explain:"模型不是搜索引擎，而是根据概率生成文本。"},
+    {q:"Workflow 和 Agentic 的主要区别是什么？",options:["前者固定流程，后者让模型决定下一步","前者更难","后者一定更稳定","两者没有区别"],answer:0,explain:"Workflow 是固定流水线，Agentic 更灵活。"}
+  ],
+  L1: [
+    {q:"ReAct 的三个动作是什么？",options:["Read、Act、Test","Reason、Act、Observe","Run、Ask、Talk","React、Answer、Output"],answer:1,explain:"ReAct = Reason → Act → Observe。"},
+    {q:"为什么希望模型返回 JSON？",options:["因为好看","程序更容易解析和继续处理","JSON 一定不会错","模型只能输出 JSON"],answer:1,explain:"结构化输出让代码能接住结果。"},
+    {q:"Few-shot 是什么意思？",options:["少用模型","给少量示例帮助模型理解任务","把模型训练一次","只允许模型说几句话"],answer:1,explain:"给例子比只讲规则更有效。"},
+    {q:"下面哪项应该主要由代码而不是提示词负责？",options:["生成诗歌","判断业务顺序和异常处理","解释概念","总结文章"],answer:1,explain:"逻辑写进代码，模型管推理和生成。"}
+  ],
+  L2: [
+    {q:"RAG 的核心思想是什么？",options:["把所有文档塞进提示词","先检索相关资料，再让模型基于资料回答","把模型换成数据库","只使用关键词搜索"],answer:1,explain:"RAG 是先找到，再生成。"},
+    {q:"Function Calling 里，模型负责什么？",options:["真正执行工具","决定是否调用工具以及传什么参数","直接改数据库","不需要工具"],answer:1,explain:"模型决策，代码真正执行工具。"},
+    {q:"长期记忆通常用什么实现？",options:["只靠上下文窗口","向量库或结构化存储","临时变量","CSS"],answer:1,explain:"长期记忆常用向量库和数据库。"},
+    {q:"防止 Agent 死循环最重要的措施是什么？",options:["不调用工具","设置最大步数、超时和循环检测","让模型一直跑","只允许回答一次"],answer:1,explain:"必须设置退出条件。"},
+    {q:"重排的主要目的是什么？",options:["增加文档数量","把最相关的检索结果放到前面","删除向量","改变模型温度"],answer:1,explain:"重排提升检索精度。"}
+  ],
+  L3: [
+    {q:"LangGraph 的 State 用来做什么？",options:["保存当前工作状态","装饰界面","存储 CSS","管理域名"],answer:0,explain:"State 保存状态图当前状态。"},
+    {q:"Checkpointer 的作用是什么？",options:["检查语法","存档和恢复状态","打印日志","限制模型输出"],answer:1,explain:"Checkpointer 支持中断恢复。"},
+    {q:"Human-in-the-loop 是什么？",options:["让模型全自动","关键节点让人确认","禁止人类干预","只用于测试"],answer:1,explain:"重要节点人工确认。"},
+    {q:"学习框架的正确顺序是什么？",options:["先背框架再理解原理","先手写 ReAct，再用框架重构","永远不用框架","只学低代码"],answer:1,explain:"理解本质后再用框架。"}
+  ],
+  L4: [
+    {q:"多智能体协作最常见结构是什么？",options:["Manager-Worker","只有单个模型","没有通信","数据库集群"],answer:0,explain:"Manager 拆任务，Worker 执行。"},
+    {q:"MCP 主要解决什么问题？",options:["手机充电","统一工具接入标准","图片压缩","域名解析"],answer:1,explain:"MCP 让 Agent 统一调用工具。"},
+    {q:"辩论/反思式多智能体适合什么场景？",options:["需要降低幻觉、提高准确率","只需要快速聊天","不需要结果","不关心错误"],answer:0,explain:"多模型互相挑错可降低错误。"},
+    {q:"多 Agent 异步任务最关键的是？",options:["不收集结果","统一收口和结果聚合","让它们一直跑","关闭日志"],answer:1,explain:"要处理顺序、失败重试和聚合。"}
+  ],
+  L5: [
+    {q:"FastAPI 在 Agent 项目里主要做什么？",options:["写 CSS","提供对外 HTTP 接口","训练大模型","管理手机相册"],answer:1,explain:"FastAPI 是 Agent 的对外窗口。"},
+    {q:"为什么生产接口要限流和重试？",options:["为了更难用","防止过载，提高稳定性","让接口更慢","只是形式"],answer:1,explain:"限流重试保障生产稳定。"},
+    {q:"评测 Agent 时最重要的指标包括？",options:["准确率、幻觉率、延迟、成本","只有颜色和字体","只有下载量","只有按钮数量"],answer:0,explain:"没有评测，就无法判断好坏。"},
+    {q:"AgentOps / Harness 关注什么？",options:["装修","上下文、工具执行、任务状态、调试评测","只关注前端","只关注营销"],answer:1,explain:"AgentOps 关注全生命周期可观测。"}
+  ],
+  L6: [
+    {q:"Context Engineering 的核心是什么？",options:["把上下文塞满","筛选、压缩、排序，让模型在合适信息下工作","删除所有上下文","不看上下文"],answer:1,explain:"上下文是设计出来的。"},
+    {q:"Prompt 注入是什么？",options:["给模型送花","通过输入诱导模型执行意外指令","正常提示词","数据库索引"],answer:1,explain:"要加输入过滤、权限和沙箱。"},
+    {q:"Computer Use 为什么风险高？",options:["因为它是彩色的","能操作系统界面，可能误操作","它不会思考","它只读文字"],answer:1,explain:"需要权限、沙箱和审计。"},
+    {q:"Agentic RAG 和普通 RAG 的主要区别？",options:["Agentic RAG 让模型动态规划检索过程","普通 RAG 更复杂","没有区别","Agentic RAG 不用向量"],answer:0,explain:"Agentic RAG 动态决定搜什么、搜几次。"}
+  ],
+  L7: [
+    {q:"简历项目描述最应该突出什么？",options:["只写学过什么","技术栈、解决什么问题、量化结果","只写兴趣爱好","只写课程名"],answer:1,explain:"大厂看你能证明自己会干活。"},
+    {q:"面试回答 ReAct 时，最好怎么讲？",options:["只背概念","结合自己项目里的真实循环和退出条件","拒绝回答","只讲英文缩写"],answer:1,explain:"配真实项目例子最有力。"},
+    {q:"STAR 是什么？",options:["一种编程语言","背景、任务、行动、结果","四个星球","四种模型"],answer:1,explain:"STAR 用于结构化表达项目经历。"},
+    {q:"实习答辩最核心的是什么？",options:["讲清目标、方案、结果、复盘和下一步","念 PPT","只展示界面","不提数据"],answer:0,explain:"答辩就是一次项目汇报。"}
+  ]
+};
+
+const TREND_SNAPSHOTS = [
+  [
+    {tag:"JD 高频词",title:"RAG 从加分项变成基础项",text:"大厂 AI/Agent 实习岗普遍要求能搭知识库问答，能讲清分块、检索、重排和幻觉处理。",query:"AI Agent 实习生 RAG 2026"},
+    {tag:"面试重点",title:"工具调用和异常处理",text:"面试会问工具报错、权限控制、死循环退出和成本控制，不再是只问概念。",query:"AI Agent 面试 工具调用 死循环 2026"},
+    {tag:"框架趋势",title:"LangGraph + MCP 成为主流组合",text:"工程岗更看重可中断、可恢复、可观测，而不是只有一个聊天 Demo。",query:"LangGraph MCP Agent 2026"}
+  ],
+  [
+    {tag:"岗位变化",title:"Agent Harness / AgentOps 独立设岗",text:"上下文管理、任务状态、调试评测、CI/CD 成为新的工程重点。",query:"AgentOps Harness 实习 2026"},
+    {tag:"能力缺口",title:"评测可观测被严重低估",text:"能讲清楚准确率、幻觉率、延迟和成本，会让候选人非常突出。",query:"Agent 评测 Langfuse Ragas 2026"},
+    {tag:"AI 工具",title:"大厂点名重度使用 AI 编程工具",text:"Cursor、Claude Code、Codex 等成为零基础转方向者的弯道超车点。",query:"Cursor Codex AI Agent 实习 2026"}
+  ],
+  [
+    {tag:"赛道方向",title:"AI 应用开发比算法更友好",text:"本科转方向优先切入 AI 应用 / Agent 开发，算法岗仍偏向硕士和论文。",query:"AI 应用开发 本科 实习 2026"},
+    {tag:"多智能体",title:"MCP / A2A / Skills 是分水岭",text:"能不能讲清多 Agent 编排，是拉开差距的关键问题。",query:"多智能体 MCP A2A 实习 2026"},
+    {tag:"项目要求",title:"完整项目闭环更重要",text:"从需求、方案、开发、评测到上线复盘，比背一堆名词更有说服力。",query:"Agent 项目 实习 答辩 2026"}
+  ]
+];
+
 const AGENT_ROLES = [
   { id: "leader", name: "Leader", desc: "拆需求、派任务、验收", color: "blue", message: "这个工单我先帮你拆成 3 个可交付结果：核心流程跑通、异常兜底、上线文档。先做最小闭环，别一上来追求完美。" },
   { id: "mentor", name: "Mentor", desc: "带教、答疑、纠偏", color: "pink", message: "遇到卡点很正常。你先把“输入是什么、输出是什么、卡在哪一步”写清楚，问题就解决一半了。" },
