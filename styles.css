@@ -471,6 +471,103 @@ h2 {
   line-height: 1.7;
 }
 
+.plan-list {
+  display: grid;
+  gap: 14px;
+}
+
+.plan-card {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.plan-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.plan-week {
+  flex: 0 0 auto;
+  padding: 9px 11px;
+  border-radius: 13px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--blue), #98c4ff);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.plan-card h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.plan-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.plan-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.plan-tags span {
+  padding: 6px 8px;
+  border-radius: 9px;
+  color: #3e5b9c;
+  background: var(--blue-soft);
+  font-size: 11px;
+}
+
+.plan-strategy {
+  margin-bottom: 12px;
+  padding: 10px;
+  border-radius: 13px;
+  background: var(--mint-soft);
+  color: #29725d !important;
+  font-size: 12px !important;
+  line-height: 1.6 !important;
+}
+
+.plan-tasks {
+  display: grid;
+  gap: 7px;
+}
+
+.plan-tasks div {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.plan-tasks b {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 7px;
+  color: #fff;
+  background: var(--pink);
+  font-size: 11px;
+}
+
+.plan-tasks span {
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
 .modal {
   position: fixed;
   inset: 0;

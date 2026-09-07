@@ -173,7 +173,7 @@
     if (!stage) return;
     const lessons = (STAGE_LESSONS[stageId] || {}).lessons || [];
     const practice = (STAGE_LESSONS[stageId] || {}).practice || "";
-    const quiz = STAGE_QUIZZES[stageId] || [];
+    const quiz = (STAGE_QUIZZES[stageId] || []).concat(STAGE_QUIZZES_ADVANCED[stageId] || []);
     const showCode = ["L0", "L1"].includes(stageId);
 
     const overlay = document.createElement("div");
@@ -251,7 +251,7 @@
   }
 
   function submitStageQuiz(stageId) {
-    const quiz = STAGE_QUIZZES[stageId] || [];
+    const quiz = (STAGE_QUIZZES[stageId] || []).concat(STAGE_QUIZZES_ADVANCED[stageId] || []);
     let correct = 0;
     quiz.forEach((item, qi) => {
       const selected = document.querySelector(`input[name="quiz-${stageId}"]:checked`)?document.querySelectorAll(`input[name="quiz-${stageId}"]`)[0]:null;
@@ -636,6 +636,29 @@
     }
   }
 
+  function renderStudyPlan() {
+    const container = $("#studyPlan");
+    if (!container) return;
+    container.innerHTML = STUDY_PLAN.map((week) => `
+      <article class="plan-card">
+        <div class="plan-card__head">
+          <span class="plan-week">${week.week}</span>
+          <div>
+            <h3>${week.title}</h3>
+            <p>${week.goal}</p>
+          </div>
+        </div>
+        <div class="plan-tags">
+          ${week.focus.map((item) => `<span>${item}</span>`).join("")}
+        </div>
+        <p class="plan-strategy">${week.strategy}</p>
+        <div class="plan-tasks">
+          ${week.tasks.map((task, index) => `<div><b>${index + 1}</b><span>${task}</span></div>`).join("")}
+        </div>
+      </article>
+    `).join("");
+  }
+
   function refreshTrends() {
     const index = state.trendIndex || 0;
     state.trendIndex = (index + 1) % TREND_SNAPSHOTS.length;
@@ -676,6 +699,7 @@
   function renderAll() {
     renderHero();
     renderCurriculum();
+    renderStudyPlan();
     renderWorkbench();
     renderAgentRoles();
     renderRadar();
