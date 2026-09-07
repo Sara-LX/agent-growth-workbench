@@ -95,11 +95,11 @@
 
       const topicsHtml = stage.topics.map((topic, topicIndex) => {
         const key = topicKey(stage.id, topicIndex);
-        const checked = state.stagePassed[stage.id] ? "checked" : "";
+        const checked = state.stagePassed[stage.id] || state.topics[key] ? "checked" : "";
         return `
           <div class="topic">
             <input type="checkbox" id="${key}" data-stage="${stage.id}" data-index="${topicIndex}" ${checked} disabled />
-            <label for="${key}">
+            <label for="${key}" data-deep-stage="${stage.id}" data-deep-index="${topicIndex}">
               ${topic.name}
               <small>${topic.tip}</small>
             </label>
@@ -158,6 +158,12 @@
 
     $$(".topic input").forEach((input) => {
       input.disabled = true;
+    });
+
+    $$(".topic label[data-deep-stage]").forEach((label) => {
+      label.addEventListener("click", () => {
+        openTopicDeep(label.dataset.deepStage, Number(label.dataset.deepIndex));
+      });
     });
 
     $$(".learn-btn").forEach((button) => {
@@ -288,6 +294,107 @@
     } else {
       showToast(`正确率 ${rate}%，还差一点，再看讲解后重试。`);
     }
+  }
+
+  function openTopicDeep(stageId, topicIndex) {
+    const key = topicKey(stageId, topicIndex);
+    const deep = TOPIC_DEEP[key];
+    if (!deep) {
+      showToast("这个知识点的深度内容还在制作中。");
+      return;
+    }
+
+    const overlay = document.createElement("div");
+    overlay.className = "modal";
+    overlay.id = "topicDeepModal";
+    overlay.innerHTML = `
+      <div class="modal-card">
+        <div class="modal-head">
+          <div>
+            <p class="eyebrow">${stageId} · 知识点深度讲解</p>
+            <h2>${deep.title}</h2>
+          </div>
+          <button class="modal-close" data-close-modal>×</button>
+        </div>
+        <div class="modal-body">
+          <div class="topic-summary">${deep.summary}</div>
+          <div class="topic-points">
+            ${deep.points.map((point) => `<div><b>◆</b><span>${point}</span></div>`).join("")}
+          </div>
+          ${deep.code ? `<div class="code-practice"><div class="code-practice__head">代码示例</div><pre class="topic-code">${deep.code}</pre></div>` : ""}
+          <div class="topic-block">
+            <strong>常见错误</strong>
+            ${deep.mistakes.map((m) => `<p>• ${m}</p>`).join("")}
+          </div>
+          <div class="topic-block">
+            <strong>面试追问</strong>
+            <p>${deep.interview}</p>
+          </div>
+          <div class="quiz-block">
+            <div class="quiz-block__head">知识点测验</div>
+            ${deep.questions.map((item, qi) => `
+              <div class="quiz-item" data-q="${qi}">
+                <p class="quiz-q">${qi + 1}. ${item.q}</p>
+                ${item.options.map((opt, oi) => `
+                  <label class="quiz-opt">
+                    <input type="radio" name="topicQuiz-${stageId}-${topicIndex}" value="${oi}" />
+                    <span>${String.fromCharCode(65 + oi)}. ${opt}</span>
+                  </label>
+                `).join("")}
+                <div class="quiz-explain" data-explain="${qi}"></div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="ghost-btn" data-close-modal>关闭</button>
+          <button class="primary-btn" id="submitTopicQuizBtn">提交知识点测验</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    overlay.querySelectorAll("[data-close-modal]").forEach((btn) => {
+      btn.addEventListener("click", closeTopicDeep);
+    });
+
+    $("#submitTopicQuizBtn").addEventListener("click", () => {
+      const questions = deep.questions;
+      let correct = 0;
+      questions.forEach((item, qi) => {
+        const inputs = document.querySelectorAll(`input[name="topicQuiz-${stageId}-${topicIndex}"]`);
+        let userChoice = null;
+        inputs.forEach((input) => {
+          if (input.checked) userChoice = Number(input.value);
+        });
+        const isRight = userChoice === item.answer;
+        if (isRight) correct++;
+        const explainEl = document.querySelectorAll(`#topicDeepModal [data-explain]`)[qi];
+        if (explainEl) {
+          explainEl.textContent = isRight ? `✅ ${item.explain}` : `❌ 正确答案 ${String.fromCharCode(65 + item.answer)}。${item.explain}`;
+        }
+        const correctInput = inputs[item.answer];
+        if (correctInput) correctInput.closest(".quiz-opt").classList.add("is-correct");
+      });
+      const rate = Math.round((correct / questions.length) * 100);
+      if (rate >= 80) {
+        state.topics[key] = true;
+        saveState();
+        closeTopicDeep();
+        renderHero();
+        renderCurriculum();
+        renderWorkbench();
+        renderRadar();
+        showToast("知识点测验通过，已自动打勾！");
+      } else {
+        showToast(`正确率 ${rate}%，再看一遍讲解后重试。`);
+      }
+    });
+  }
+
+  function closeTopicDeep() {
+    const modal = $("#topicDeepModal");
+    if (modal) modal.remove();
   }
 
   function runMiniPython(code) {

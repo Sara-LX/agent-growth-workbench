@@ -460,6 +460,155 @@ const STAGE_QUIZZES_ADVANCED = {
   ]
 };
 
+const TOPIC_DEEP = {
+  "L0:0": {
+    title: "Python 语法：变量 / 循环 / 函数 / 类",
+    summary: "先建立“数据怎么存、流程怎么走、逻辑怎么封装”的底层直觉，而不是死记语法。",
+    points: [
+      "变量不是盒子，而是名字和对象之间的绑定。字符串要加引号，不加引号会被当作变量名。",
+      "for 循环用于遍历序列；range(n) 从 0 开始，不包含 n。缩进不是风格，而是语法。",
+      "函数把重复逻辑封装起来，接受输入、返回输出。类则把数据和操作组织成对象，但做 Agent 时不要为了写类而写类。",
+      "读代码时先找入口，再看数据怎么流动，最后看边界和异常处理。"
+    ],
+    code: "def greet(name):\n    return f'Hello, {name}'\n\nfor i in range(3):\n    print(greet(f'student{i}'))",
+    mistakes: ["把缩进混用空格和 Tab", "以为 range(3) 包含 3", "给变量名加引号，导致它变成字符串"],
+    interview: "面试官可能让你解释：为什么 Python 里缩进会影响逻辑？函数参数默认值为什么不要用可变对象？",
+    questions: [
+      {q:"下面代码会输出几次？for i in range(2): print(i)",options:["2 次","3 次","1 次","4 次"],answer:0,explain:"range(2) 产生 0、1，共两次。"},
+      {q:"为什么函数内部修改一个外部整数变量，通常需要 global 或返回值？",options:["Python 故意难用","函数作用域内赋值会创建局部变量","整数太大","内存不够"],answer:1,explain:"Python 的作用域规则决定：函数内赋值默认创建局部变量。"},
+      {q:"类和函数相比，什么时候才值得用类？",options:["任何代码都必须用类","需要维护状态和一组相关操作时","类一定更快","类更短"],answer:1,explain:"有状态且操作内聚时用类，否则函数更简单。"}
+    ]
+  },
+  "L0:1": {
+    title: "文件与 JSON 读写",
+    summary: "Agent 的配置、记忆、工具结果很多都以 JSON 形式存储。会读写文件是工程基础。",
+    points: [
+      "JSON 是文本格式，不是 Python 对象。要用 json.load / json.dump 做转换。",
+      "读文件要指定 encoding='utf-8'，否则中文可能乱码。",
+      "写入前要想清楚：覆盖、追加还是合并。重要数据先备份。",
+      "解析外部 JSON 必须容错，文件可能缺失、损坏或字段类型不对。"
+    ],
+    code: "import json\n\nwith open('config.json', encoding='utf-8') as f:\n    data = json.load(f)\nprint(data.get('model', 'default'))",
+    mistakes: ["忘记 with open，导致文件句柄泄漏", "把 json.load 和 json.loads 混用", "读取中文文件不写 encoding"],
+    interview: "面试官会追问：如果配置文件很大，为什么不能一次性读进内存？流式读取和增量解析是什么？",
+    questions: [
+      {q:"json.load 和 json.loads 的区别是什么？",options:["没区别","前者读文件对象，后者解析字符串","前者更快","后者更安全"],answer:1,explain:"load 处理文件，loads 处理字符串。"},
+      {q:"读取中文 JSON 时，最常需要指定什么？",options:["encoding='utf-8'","mode='wb'","speed='fast'","format='json'"],answer:0,explain:"明确 UTF-8 避免乱码。"},
+      {q:"生产环境读外部 JSON 为什么必须 try/except？",options:["为了代码更长","输入可能缺失、损坏或字段错误","JSON 不允许异常","为了运行更慢"],answer:1,explain:"外部输入不可控，必须容错。"}
+    ]
+  },
+  "L0:2": {
+    title: "requests 调 API",
+    summary: "调模型接口前，先学会普通 HTTP API 的请求、响应、状态码和错误处理。",
+    points: [
+      "GET 用于取数据，POST 用于提交数据。多数模型 API 使用 POST。",
+      "requests.post(url, headers=..., json=...) 是最常见形态。",
+      "必须检查 status_code，200 只代表请求成功，不代表业务一定成功。",
+      "设置 timeout，避免请求永久卡住；生产代码要加重试和退避。"
+    ],
+    code: "import requests\n\nresp = requests.post('https://api.example.com/chat', json={'q':'hi'}, timeout=10)\nresp.raise_for_status()\nprint(resp.json())",
+    mistakes: ["不设置 timeout", "不检查响应内容结构就取字段", "把 API Key 硬编码在代码里"],
+    interview: "面试官会问：如果 API 偶发超时，你会怎么设计重试？为什么要指数退避而不是固定间隔？",
+    questions: [
+      {q:"为什么 requests 调用必须设置 timeout？",options:["为了好看","防止请求无限等待，影响系统稳定性","为了更快","为了降低费用"],answer:1,explain:"超时控制是生产稳定性基础。"},
+      {q:"HTTP 状态码 200 代表什么？",options:["业务一定成功","请求被服务器接受并返回响应","参数一定正确","模型一定不幻觉"],answer:1,explain:"200 是 HTTP 层成功，业务结果仍需检查。"},
+      {q:"API Key 正确的管理方式是什么？",options:["写死在代码里","放环境变量或密钥管理服务","发到群里","写进 README"],answer:1,explain:"密钥不能进代码仓库。"}
+    ]
+  },
+  "L0:3": {
+    title: "asyncio 异步并发",
+    summary: "当 Agent 同时调多个工具或模型时，异步并发可以显著降低总等待时间。",
+    points: [
+      "同步代码是等一个完成再开始下一个；异步代码可以在等待 IO 时切换执行其他任务。",
+      "asyncio 适合 IO 密集型任务，例如 HTTP 请求、文件读写；不适合纯 CPU 计算。",
+      "asyncio.gather 可以同时跑多个协程并收集结果。",
+      "要控制并发数，避免一次打爆外部 API。"
+    ],
+    code: "import asyncio\n\nasync def fetch(i):\n    await asyncio.sleep(1)\n    return i * 2\n\nasync def main():\n    results = await asyncio.gather(*[fetch(i) for i in range(3)])\n    print(results)\n\nasyncio.run(main())",
+    mistakes: ["把 asyncio 用在 CPU 密集任务上", "忘记 await 导致协程没有执行", "同时发起过多请求导致限流"],
+    interview: "面试官可能问：asyncio、多线程、多进程分别适合什么场景？为什么 Agent 并发主要用 asyncio？",
+    questions: [
+      {q:"asyncio 最适合什么任务？",options:["大量 CPU 计算","大量 IO 等待","GPU 训练","内存拷贝"],answer:1,explain:"异步主要优化 IO 等待。"},
+      {q:"为什么并发调用外部 API 时还要限制数量？",options:["因为电脑慢","避免触发限流和打爆服务","为了好看","没有原因"],answer:1,explain:"并发过大容易被限流，也影响对方稳定。"},
+      {q:"忘记 await 一个协程会发生什么？",options:["程序崩溃","协程可能不会执行，并给出警告","一定更快","自动重试"],answer:1,explain:"协程对象需要被 await 才会执行。"}
+    ]
+  },
+  "L0:4": {
+    title: "虚拟环境与 Git",
+    summary: "项目隔离和版本管理是大厂协作的基本功，不是可选加分项。",
+    points: [
+      "虚拟环境让不同项目使用不同依赖版本，避免互相污染。",
+      "requirements.txt 记录依赖，方便别人复现你的项目。",
+      "Git 记录变更；.gitignore 排除密钥、虚拟环境、缓存和大文件。",
+      "提交信息要写清楚“做了什么”，而不是“update”。"
+    ],
+    code: "python -m venv .venv\n.venv\\Scripts\\activate\npip install -r requirements.txt\ngit add .\ngit commit -m 'add RAG agent'",
+    mistakes: ["把 .venv 提交进仓库", "把 API Key 提交到 Git", "一次提交混入多个无关改动"],
+    interview: "面试官会问：为什么不能把虚拟环境目录提交到 Git？requirements.txt 和 lock 文件有什么区别？",
+    questions: [
+      {q:"虚拟环境的主要作用是什么？",options:["让电脑更快","隔离不同项目的依赖版本","节省硬盘","替代 Git"],answer:1,explain:"依赖隔离是核心。"},
+      {q:".gitignore 应该包含什么？",options:["虚拟环境、密钥、缓存","index.html","README","app.js"],answer:0,explain:"敏感和可再生成内容不应提交。"},
+      {q:"为什么提交信息要清晰？",options:["因为好看","方便回溯变更、协作和 code review","为了增加字数","没有作用"],answer:1,explain:"清晰历史是协作基础。"}
+    ]
+  },
+  "L0:5": {
+    title: "LLM 原理：token / 上下文 / 温度 / 幻觉 / 流式",
+    summary: "这些概念决定了 Agent 的能力边界、成本和工程方案。",
+    points: [
+      "token 是模型处理文本的最小单位，不是单词也不是字符。中文通常一个字或词切成多个 token。",
+      "上下文窗口是模型一次能看到的 token 总量。输入加输出都要算进去。",
+      "温度控制随机性：温度低更稳定，温度高更多样。Agent 工具调用通常用低温。",
+      "幻觉是模型预测下一个 token 的自然结果，不是故障；要通过检索、来源引用和校验来压制。",
+      "流式输出是边生成边返回，能降低首字延迟，但要增量解析。"
+    ],
+    code: "",
+    mistakes: ["以为 token 等于单词", "忽略输出 token 也占用上下文", "把温度和“聪明程度”混为一谈"],
+    interview: "面试官会追问：上下文窗口快满时，你会做截断、摘要还是检索？为什么？",
+    questions: [
+      {q:"上下文窗口包含哪些内容？",options:["只包含输入","输入和输出都占用","只包含输出","只包含系统提示"],answer:1,explain:"输入、输出、系统提示都计入上下文。"},
+      {q:"为什么 Agent 工具调用通常用较低温度？",options:["为了省钱","需要更稳定的格式和决策","因为模型会变快","为了产生创意"],answer:1,explain:"工具调用要求稳定可靠。"},
+      {q:"流式输出的主要价值是什么？",options:["减少 token","降低首字延迟并改善体验","让模型更聪明","避免幻觉"],answer:1,explain:"边生成边返回，体验更好。"}
+    ]
+  },
+  "L0:6": {
+    title: "Agent = LLM + 规划 + 工具 + 记忆",
+    summary: "Agent 不只是聊天模型，而是一个会思考、能做事、有记忆的系统。",
+    points: [
+      "LLM 是大脑，负责理解和推理。",
+      "规划让模型决定下一步做什么，而不是一次输出全部。",
+      "工具让 Agent 能查询、搜索、调 API、操作环境。模型决策，代码执行。",
+      "记忆分为短期和长期：短期靠上下文，长期靠向量库或数据库。",
+      "没有退出条件、没有工具异常处理、没有记忆管理的 Agent 只是 Demo。"
+    ],
+    code: "",
+    mistakes: ["把所有逻辑都交给模型", "没有给 Agent 设置退出条件", "把聊天记录无限塞进上下文当作记忆"],
+    interview: "面试官会问：Agent 和普通 LLM 问答的本质区别是什么？请用 ReAct 循环说明。",
+    questions: [
+      {q:"Agent 四要素中，哪一项由代码真正执行而不是模型生成？",options:["规划","工具","推理","记忆"],answer:1,explain:"模型决策调用工具，但工具执行由代码完成。"},
+      {q:"为什么 Agent 需要退出条件？",options:["为了节约内存","防止无限循环和成本失控","为了更好看","为了增加 token"],answer:1,explain:"退出条件是生产安全必备。"},
+      {q:"长期记忆通常用什么实现？",options:["只靠上下文","向量库或结构化存储","临时变量","CSS"],answer:1,explain:"长期记忆需要外部存储。"}
+    ]
+  },
+  "L0:7": {
+    title: "Workflow 与 Agentic 的区别",
+    summary: "稳定优先用 Workflow，灵活优先用 Agentic。工程判断比追名词更重要。",
+    points: [
+      "Workflow 是固定流程，步骤和分支由代码预先定义，可控、可预测。",
+      "Agentic 是模型根据中间结果动态决定下一步，更灵活但也更难控制。",
+      "大多数生产系统是混合模式：稳定步骤用 Workflow，关键推理点用 Agentic。",
+      "不要为了“Agentic”而 Agentic，成本和稳定性都要算账。"
+    ],
+    code: "",
+    mistakes: ["认为 Agentic 一定更高级", "把所有流程都交给模型自由发挥", "低估固定流程的可观测性"],
+    interview: "面试官会追问：什么情况下你会把 Agentic 降级为 Workflow？请给出判断标准。",
+    questions: [
+      {q:"Workflow 的主要优势是什么？",options:["更灵活","稳定、可控、易观测","不需要代码","模型更强"],answer:1,explain:"固定流程更可控。"},
+      {q:"Agentic 更适合什么场景？",options:["路径不确定、需要动态决策","重复固定流程","简单计算","静态表单"],answer:0,explain:"动态决策是 Agentic 的价值。"},
+      {q:"生产系统通常怎么做？",options:["只选一种","混合使用 Workflow 和 Agentic","不用任何流程","让模型自由发挥"],answer:1,explain:"混合模式更实用。"}
+    ]
+  }
+};
+
 const TREND_SNAPSHOTS = [
   [
     {tag:"JD 高频词",title:"RAG 从加分项变成基础项",text:"大厂 AI/Agent 实习岗普遍要求能搭知识库问答，能讲清分块、检索、重排和幻觉处理。",query:"AI Agent 实习生 RAG 2026"},

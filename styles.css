@@ -634,6 +634,71 @@ h2 {
   gap: 10px;
 }
 
+.topic-summary {
+  margin-bottom: 12px;
+  padding: 11px 12px;
+  border-radius: 14px;
+  color: #3e5b9c;
+  background: var(--blue-soft);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.topic-points {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.topic-points div {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.topic-points b {
+  color: var(--blue);
+}
+
+.topic-points span {
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.topic-code {
+  margin: 10px 0 0;
+  padding: 12px;
+  border-radius: 12px;
+  color: #dbeafe;
+  background: #0f172a;
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.topic-block {
+  margin-top: 12px;
+  padding: 11px 12px;
+  border-radius: 14px;
+  background: #f7f9fd;
+}
+
+.topic-block strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #3e5b9c;
+  font-size: 12px;
+}
+
+.topic-block p {
+  margin: 3px 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
 .code-practice {
   margin-top: 16px;
   padding: 14px;
