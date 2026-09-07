@@ -219,7 +219,7 @@
                 <p class="quiz-q">${qi + 1}. ${item.q}</p>
                 ${item.options.map((opt, oi) => `
                   <label class="quiz-opt">
-                    <input type="radio" name="quiz-${stageId}" value="${oi}" />
+                    <input type="radio" name="quiz-${stageId}-${qi}" value="${oi}" />
                     <span>${String.fromCharCode(65 + oi)}. ${opt}</span>
                   </label>
                 `).join("")}
@@ -260,9 +260,8 @@
     const quiz = (STAGE_QUIZZES[stageId] || []).concat(STAGE_QUIZZES_ADVANCED[stageId] || []);
     let correct = 0;
     quiz.forEach((item, qi) => {
-      const selected = document.querySelector(`input[name="quiz-${stageId}"]:checked`)?document.querySelectorAll(`input[name="quiz-${stageId}"]`)[0]:null;
-      const chosen = document.querySelector(`input[name="quiz-${stageId}"][value="${item.answer}"]`);
-      const inputs = document.querySelectorAll(`input[name="quiz-${stageId}"]`);
+      const chosen = document.querySelector(`input[name="quiz-${stageId}-${qi}"][value="${item.answer}"]`);
+      const inputs = document.querySelectorAll(`input[name="quiz-${stageId}-${qi}"]`);
       let userChoice = null;
       inputs.forEach((input) => {
         if (input.checked) userChoice = Number(input.value);
@@ -299,6 +298,7 @@
   function openTopicDeep(stageId, topicIndex) {
     const key = topicKey(stageId, topicIndex);
     const deep = TOPIC_DEEP[key];
+    const interview = TOPIC_INTERVIEW[key] || {};
     if (!deep) {
       showToast("这个知识点的深度内容还在制作中。");
       return;
@@ -327,8 +327,12 @@
             ${deep.mistakes.map((m) => `<p>• ${m}</p>`).join("")}
           </div>
           <div class="topic-block">
-            <strong>面试追问</strong>
-            <p>${deep.interview}</p>
+            <strong>真实面试官会问</strong>
+            <p>${interview.interviewer || deep.interview}</p>
+          </div>
+          <div class="topic-block">
+            <strong>参考答案</strong>
+            <p>${interview.answer || "结合上面的关键细节和项目经验回答，重点说清判断依据和权衡。"}</p>
           </div>
           <div class="quiz-block">
             <div class="quiz-block__head">知识点测验</div>
@@ -337,7 +341,7 @@
                 <p class="quiz-q">${qi + 1}. ${item.q}</p>
                 ${item.options.map((opt, oi) => `
                   <label class="quiz-opt">
-                    <input type="radio" name="topicQuiz-${stageId}-${topicIndex}" value="${oi}" />
+                    <input type="radio" name="topicQuiz-${stageId}-${topicIndex}-${qi}" value="${oi}" />
                     <span>${String.fromCharCode(65 + oi)}. ${opt}</span>
                   </label>
                 `).join("")}
@@ -362,7 +366,7 @@
       const questions = deep.questions;
       let correct = 0;
       questions.forEach((item, qi) => {
-        const inputs = document.querySelectorAll(`input[name="topicQuiz-${stageId}-${topicIndex}"]`);
+        const inputs = document.querySelectorAll(`input[name="topicQuiz-${stageId}-${topicIndex}-${qi}"]`);
         let userChoice = null;
         inputs.forEach((input) => {
           if (input.checked) userChoice = Number(input.value);

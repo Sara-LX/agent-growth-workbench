@@ -861,6 +861,31 @@ const TOPIC_DEEP = {
   }
 };
 
+const TOPIC_INTERVIEW = {
+  "L0:0": {interviewer:"请解释 Python 里可变对象作为函数默认参数会有什么问题？", answer:"默认参数在函数定义时只创建一次。如果默认值是列表或字典，多次调用会共享并累积修改。正确做法是把默认值设为 None，在函数体内再创建新对象。"},
+  "L0:1": {interviewer:"如果 JSON 文件很大，你会怎么读取？", answer:"不要一次读入内存。可以用流式解析，例如 ijson 逐条处理，或按行读取再解析，避免内存暴涨。"},
+  "L0:2": {interviewer:"API 偶发超时，你会怎么设计重试？", answer:"设置 timeout，采用指数退避重试，并设置最大重试次数。对幂等请求才可安全重试；非幂等请求要谨慎。"},
+  "L0:3": {interviewer:"asyncio、多线程、多进程分别适合什么场景？", answer:"asyncio 适合大量 IO 等待；多线程适合 IO 和需要共享内存的任务；多进程适合 CPU 密集任务。Agent 并发主要用 asyncio。"},
+  "L0:4": {interviewer:"为什么 requirements.txt 和 lock 文件都需要？", answer:"requirements.txt 描述直接依赖范围，lock 文件锁定完整依赖树和版本，保证不同环境可复现。"},
+  "L0:5": {interviewer:"上下文窗口快满时，你会怎么做？", answer:"优先保留系统提示词和当前任务关键信息，对历史做摘要或截断；需要长期知识时走 RAG，而不是硬塞。"},
+  "L0:6": {interviewer:"Agent 和普通 LLM 问答的本质区别是什么？", answer:"普通 LLM 一次生成答案；Agent 会规划、调用工具、观察结果并继续决策，形成闭环。"},
+  "L0:7": {interviewer:"什么情况下你会把 Agentic 降级为 Workflow？", answer:"当任务步骤稳定、可预测、高风险或需要强可观测性时，用 Workflow 更安全；只有路径不确定时才保留 Agentic。"},
+  "L1:0": {interviewer:"为什么不能把用户输入直接拼进系统提示词？", answer:"因为用户可能注入指令，覆盖系统规则。必须隔离不可信输入，做输入过滤、权限限制和输出审计。"},
+  "L1:1": {interviewer:"模型返回 JSON 格式错误，你会怎么处理？", answer:"先做 Schema 校验；失败可重试一次，再失败则降级为默认结果或返回明确错误，不能直接崩溃。"},
+  "L1:2": {interviewer:"什么任务适合 CoT，什么任务不适合？", answer:"多步推理、数学和逻辑任务适合 CoT；简单事实查询、翻译或快速分类不适合，因为会增加延迟和成本。"},
+  "L1:3": {interviewer:"请手写 ReAct 循环，并说明工具连续失败怎么办。", answer:"Reason→Act→Observe 循环。连续失败达到阈值后，应停止调用、降级策略或返回明确错误，不能无限重试。"},
+  "L1:4": {interviewer:"自我反思为什么不能完全解决幻觉？", answer:"模型可能在反思中继续强化错误。事实性任务必须引入外部检索、来源引用或工具验证。"},
+  "L1:5": {interviewer:"如何组织提示词才能提高缓存命中率？", answer:"把稳定的系统提示词和共享文档放前面，动态用户输入放后面；避免每次改变前缀，缓存命中率会更高。"},
+  "L1:6": {interviewer:"哪些逻辑绝对不能交给模型？", answer:"权限判断、支付、数据删除、业务流程分支和异常处理等必须由代码控制，模型只做理解、推理和生成。"},
+  "L2:0": {interviewer:"工具调用失败后，如何让模型知道并修复参数？", answer:"把结构化错误信息作为 Observation 返回给模型，让它根据错误重试；代码同时校验参数并设置失败上限。"},
+  "L2:1": {interviewer:"如果模型请求没有权限的工具，你会怎么处理？", answer:"返回无权限错误，并给出允许的工具列表或降级方案，同时记录审计日志。"},
+  "L2:2": {interviewer:"长期记忆怎么设计？", answer:"短期用上下文窗口，长期用向量库和结构化存储；要设计提取、检索、更新、隐私删除和过期策略。"},
+  "L2:3": {interviewer:"chunk_size 和 overlap 怎么选？", answer:"根据文档结构和检索需求测试。典型 chunk 300-800 token，overlap 约为 chunk 的 10%-20%，避免切断关键语义。"},
+  "L2:4": {interviewer:"检索准确率低，你会从哪一层排查？", answer:"先看 bad case，再依次检查分块质量、Embedding 是否匹配、召回策略是否混合、重排是否有效，最后看提示词和生成模型。"},
+  "L2:5": {interviewer:"Plan-and-Execute 和 ReAct 分别适合什么场景？", answer:"Plan-and-Execute 适合步骤相对明确的多步任务；ReAct 适合需要根据工具结果动态调整的交互式任务。"},
+  "L2:6": {interviewer:"如何检测 Agent 陷入循环？", answer:"记录每一步的状态和动作，检测重复动作、状态不推进或步数超限，触发后终止或降级。"}
+};
+
 const TREND_SNAPSHOTS = [
   [
     {tag:"JD 高频词",title:"RAG 从加分项变成基础项",text:"大厂 AI/Agent 实习岗普遍要求能搭知识库问答，能讲清分块、检索、重排和幻觉处理。",query:"AI Agent 实习生 RAG 2026"},
