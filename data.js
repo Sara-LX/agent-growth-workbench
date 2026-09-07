@@ -858,6 +858,96 @@ const TOPIC_DEEP = {
       {q:"如何判断 Agent 是否在空转？",options:["看界面颜色","状态是否推进、动作是否重复","看模型大小","看网络速度"],answer:1,explain:"状态推进是判断依据。"},
       {q:"检测到死循环后，应该？",options:["继续运行","终止或降级，并返回可解释结果","忽略","重启电脑"],answer:1,explain:"要有降级策略。"}
     ]
+  },
+  "L3:0": {
+    title: "手写 ReAct 循环",
+    summary: "先不用框架，把“想→做→看”跑通，你才真正理解 Agent。",
+    points: [
+      "循环结构通常是：模型输出 thought 和 action，代码执行 action，再把 observation 交回模型。",
+      "要定义最大步数、超时、停止条件和错误降级。",
+      "工具结果要结构化，不能把大段原始文本直接塞回模型。",
+      "手写 ReAct 能帮你理解框架底层在做什么。"
+    ],
+    code: "while steps < max_steps and not done:\n    thought, action = llm(...)\n    observation = execute(action)\n    messages.append(observation)",
+    mistakes: ["没有停止条件", "不处理工具错误", "把 ReAct 写成一次 prompt 调用"],
+    interview: "面试官会问：请手写一个 ReAct 循环，并说明 Observation 如何影响下一轮 Reasoning。",
+    questions: [
+      {q:"ReAct 循环中最关键的三个步骤是什么？",options:["Read、Write、Run","Reason、Act、Observe","React、Ask、Talk","Build、Test、Deploy"],answer:1,explain:"ReAct = Reason → Act → Observe。"},
+      {q:"为什么 Observation 必须是结构化结果？",options:["为了好看","模型更容易理解并继续决策","为了增加 token","没有原因"],answer:1,explain:"结构化反馈更可靠。"},
+      {q:"手写 ReAct 的最大价值是什么？",options:["代码更长","理解框架底层循环和边界","更慢","不需要测试"],answer:1,explain:"先理解本质再上框架。"}
+    ]
+  },
+  "L3:1": {
+    title: "LangGraph：State / Checkpointer / 中断恢复",
+    summary: "LangGraph 用状态图管理 Agent 流程，让复杂逻辑可控、可恢复。",
+    points: [
+      "State 是图中共享的数据结构，节点更新它，边决定下一步。",
+      "Checkpointer 保存状态快照，支持断点续跑和时间旅行。",
+      "中断恢复不是重头再来，而是从上次状态继续。",
+      "Edge 可以条件分支，让流程根据结果走不同路径。"
+    ],
+    code: "graph.add_node('agent', agent_node)\ngraph.add_edge(START, 'agent')",
+    mistakes: ["把 State 当全局变量随便改", "不使用 Checkpointer 却期待中断恢复", "所有逻辑都写在一个节点"],
+    interview: "面试官会问：Checkpointer 和普通缓存有什么区别？为什么它能让 Agent 中断恢复？",
+    questions: [
+      {q:"LangGraph 中的 State 是什么？",options:["CSS 样式","图内共享的工作状态","数据库表","模型参数"],answer:1,explain:"State 是图中流转的状态。"},
+      {q:"Checkpointer 的核心作用是什么？",options:["检查语法","保存状态，支持中断恢复","压缩图片","限制输出"],answer:1,explain:"Checkpointer 提供持久化和恢复。"},
+      {q:"中断恢复和重头再来的区别是什么？",options:["没区别","从上次状态继续，而不是重新开始","恢复更慢","恢复会删除状态"],answer:1,explain:"中断恢复是续跑。"}
+    ]
+  },
+  "L3:2": {
+    title: "Human-in-the-loop 与 Edge",
+    summary: "关键节点让人确认，避免模型自动跑飞。",
+    points: [
+      "HITL 放在高风险、不可逆或需要审批的节点。",
+      "Edge 控制流程分支，不是所有节点都要人工确认。",
+      "人工确认要有超时和默认策略，不能无限等待。",
+      "记录人工操作，方便审计和复盘。"
+    ],
+    code: "if risk_level == 'high':\n    await human_approve(proposal)",
+    mistakes: ["所有节点都人工确认", "高风险操作全自动", "没有默认超时策略"],
+    interview: "面试官会问：哪些节点适合 HITL？如果人一直不点确认，系统应该怎么办？",
+    questions: [
+      {q:"HITL 最适合放在什么节点？",options:["所有节点","高风险、不可逆、需审批的节点","开始节点","结束节点"],answer:1,explain:"只在高价值关键节点人工确认。"},
+      {q:"人工确认长时间无响应，系统应该？",options:["一直等","超时后按默认策略处理或提醒","直接崩溃","删除任务"],answer:1,explain:"要有超时和默认策略。"},
+      {q:"Edge 在 LangGraph 中的作用是什么？",options:["画图","控制节点之间的条件分支","存储状态","训练模型"],answer:1,explain:"Edge 决定流程走向。"}
+    ]
+  },
+  "L3:3": {
+    title: "AgentScope / Pydantic AI / DSPy",
+    summary: "不同框架解决不同问题，先精通一个，能讲清为什么选它。",
+    points: [
+      "AgentScope 偏多智能体和分布式协作。",
+      "Pydantic AI 强在类型安全、结构化输出和测试。",
+      "DSPy 重点在自动优化 prompt 和模型管线。",
+      "选框架看团队、生态、可控性和项目阶段，不要贪多。"
+    ],
+    code: "class WeatherResult(BaseModel):\n    city: str\n    temp: int",
+    mistakes: ["同时学太多框架", "说不清为什么选某个框架", "用框架掩盖原理不懂"],
+    interview: "面试官会问：Pydantic AI 和 LangGraph 分别适合什么场景？你会怎么选型？",
+    questions: [
+      {q:"Pydantic AI 的主要优势是什么？",options:["类型安全和结构化输出","画画","分布式训练","视频处理"],answer:0,explain:"类型安全是核心。"},
+      {q:"DSPy 主要优化什么？",options:["界面","prompt 和模型管线","数据库","网络"],answer:1,explain:"DSPy 自动优化提示和流程。"},
+      {q:"选框架时最重要的依据是什么？",options:["哪个名字好听","项目需求、生态、可控性和团队能力","哪个更新","哪个代码少"],answer:1,explain:"选型要看实际约束。"}
+    ]
+  },
+  "L3:4": {
+    title: "LlamaIndex 与低代码 Dify / Coze",
+    summary: "低代码能快速验证，代码框架能深度定制。",
+    points: [
+      "LlamaIndex 擅长 RAG 数据索引和检索编排。",
+      "Dify / Coze 适合快速原型、流程编排和团队协作。",
+      "低代码不是终点，要能讲清底层逻辑并用代码重构。",
+      "面试时不要只说“我用 Coze 搭过”，要说清流程、边界和限制。"
+    ],
+    code: "",
+    mistakes: ["只停在低代码拖拽", "把 LlamaIndex 当成万能框架", "说不清低代码平台内部流程"],
+    interview: "面试官会问：你用 Coze 搭 Agent 时，如果需求超出平台能力怎么办？",
+    questions: [
+      {q:"LlamaIndex 最适合什么？",options:["RAG 数据索引和检索编排","前端动画","数据库运维","视频剪辑"],answer:0,explain:"LlamaIndex 是 RAG 框架。"},
+      {q:"低代码平台的主要价值是什么？",options:["快速验证原型","替代所有代码","训练大模型","管理服务器"],answer:0,explain:"低代码适合快速验证。"},
+      {q:"面试时只说自己用 Coze 搭过 Agent，够吗？",options:["够","不够，还要讲清流程、边界和底层逻辑","非常够","看情况"],answer:1,explain:"大厂看底层理解。"}
+    ]
   }
 };
 
@@ -884,6 +974,12 @@ const TOPIC_INTERVIEW = {
   "L2:4": {interviewer:"检索准确率低，你会从哪一层排查？", answer:"先看 bad case，再依次检查分块质量、Embedding 是否匹配、召回策略是否混合、重排是否有效，最后看提示词和生成模型。"},
   "L2:5": {interviewer:"Plan-and-Execute 和 ReAct 分别适合什么场景？", answer:"Plan-and-Execute 适合步骤相对明确的多步任务；ReAct 适合需要根据工具结果动态调整的交互式任务。"},
   "L2:6": {interviewer:"如何检测 Agent 陷入循环？", answer:"记录每一步的状态和动作，检测重复动作、状态不推进或步数超限，触发后终止或降级。"}
+  ,
+  "L3:0": {interviewer:"请手写一个 ReAct 循环，并说明 Observation 如何影响下一轮 Reasoning。", answer:"循环读模型输出，若包含 action 就执行工具，把结构化 observation 追加到消息，再让模型基于新信息决定下一步，直到满足停止条件。"},
+  "L3:1": {interviewer:"Checkpointer 和普通缓存有什么区别？", answer:"Checkpointer 保存的是状态图执行快照，支持从某个节点恢复和回放；普通缓存通常只存结果，不一定能恢复完整执行状态。"},
+  "L3:2": {interviewer:"哪些节点适合 HITL？如果人一直不点确认怎么办？", answer:"高风险、不可逆、需要审批的节点适合 HITL。人工超时后要有默认策略，例如暂停、拒绝或走低风险降级路径，并记录审计。"},
+  "L3:3": {interviewer:"Pydantic AI 和 LangGraph 分别适合什么场景？", answer:"Pydantic AI 适合强类型、结构化输出和测试；LangGraph 适合复杂状态图、多节点流程和中断恢复。两者可以组合。"},
+  "L3:4": {interviewer:"你用 Coze 搭 Agent 时，如果需求超出平台能力怎么办？", answer:"先判断是流程、工具、权限还是模型能力受限，再把关键部分用代码实现，例如 FastAPI 服务或自定义 MCP 工具，最后保留低代码做编排。"}
 };
 
 const TREND_SNAPSHOTS = [
