@@ -948,6 +948,398 @@ const TOPIC_DEEP = {
       {q:"低代码平台的主要价值是什么？",options:["快速验证原型","替代所有代码","训练大模型","管理服务器"],answer:0,explain:"低代码适合快速验证。"},
       {q:"面试时只说自己用 Coze 搭过 Agent，够吗？",options:["够","不够，还要讲清流程、边界和底层逻辑","非常够","看情况"],answer:1,explain:"大厂看底层理解。"}
     ]
+  },
+  "L4:0": {
+    title: "Manager-Worker 与专家分工",
+    summary: "Manager 拆任务、派活、验收；Worker 负责执行。",
+    points: [
+      "Manager 负责理解目标、拆分任务和汇总结果。",
+      "Worker 专注单一职责，输入输出要定义清楚。",
+      "任务要可追踪，结果要统一聚合。",
+      "不是任务越细越好，过度拆分会增加通信成本。"
+    ],
+    code: "",
+    mistakes: ["Manager 也做具体执行", "Worker 职责重叠", "没有统一聚合结果"],
+    interview: "面试官会问：Manager-Worker 架构中，Manager 挂了怎么办？",
+    questions: [
+      {q:"Manager-Worker 中 Manager 的核心职责是什么？",options:["写前端","拆任务、派活、验收","训练模型","管理数据库"],answer:1,explain:"Manager 负责编排。"},
+      {q:"为什么 Worker 职责要单一？",options:["为了更慢","便于维护、复用和调试","为了增加成本","没有原因"],answer:1,explain:"单一职责更清晰。"}
+    ]
+  },
+  "L4:1": {
+    title: "辩论 / 反思式多 Agent",
+    summary: "多个 Agent 互相挑错，可以降低幻觉和单一视角偏差。",
+    points: [
+      "一个 Agent 提出方案，另一个 Agent 找漏洞，最后收敛。",
+      "适合高准确率、事实性和方案评审场景。",
+      "会增加延迟和 token 成本，不适合所有任务。",
+      "辩论要有终止条件，不能无限争论。"
+    ],
+    code: "",
+    mistakes: ["无限辩论没有终止条件", "所有任务都上辩论", "只辩论不聚合结论"],
+    interview: "面试官会问：辩论式多 Agent 什么时候不值得用？",
+    questions: [
+      {q:"辩论式多 Agent 最适合什么场景？",options:["高准确率、事实性任务","简单寒暄","随机生成","颜色选择"],answer:0,explain:"多视角校验降低错误。"},
+      {q:"辩论式多 Agent 的主要代价是什么？",options:["延迟和 token 成本","界面变丑","没有工具","模型变小"],answer:0,explain:"成本随 Agent 数量增加。"}
+    ]
+  },
+  "L4:2": {
+    title: "AutoGen / CrewAI / MetaGPT",
+    summary: "不同框架适合不同多智能体场景，先理解模式再选框架。",
+    points: [
+      "AutoGen 侧重对话式多 Agent 和代码执行。",
+      "CrewAI 适合角色分工和任务流水线。",
+      "MetaGPT 强调软件团队协作，产品经理、架构师、工程师等角色。",
+      "选型看任务结构、可控性、生态和团队熟悉度。"
+    ],
+    code: "",
+    mistakes: ["为了用框架而用框架", "不理解底层就堆多个 Agent", "说不清框架差异"],
+    interview: "面试官会问：CrewAI 和 MetaGPT 分别适合什么项目？",
+    questions: [
+      {q:"MetaGPT 最像哪种组织？",options:["软件开发团队","医院","餐厅","学校"],answer:0,explain:"MetaGPT 模拟软件团队。"},
+      {q:"CrewAI 的核心是什么？",options:["角色分工和任务流水线","图像识别","视频剪辑","网络爬虫"],answer:0,explain:"CrewAI 强调角色和任务。"}
+    ]
+  },
+  "L4:3": {
+    title: "通信协议：MCP / A2A / Agent Skills",
+    summary: "协议让工具、Agent 和能力可以跨系统复用。",
+    points: [
+      "MCP 统一工具接入标准，让 Agent 调用外部工具。",
+      "A2A 让不同 Agent 之间互相协作。",
+      "Agent Skills 把可复用能力打包。",
+      "协议要处理认证、超时、版本和错误。"
+    ],
+    code: "",
+    mistakes: ["把 MCP 当成万能协议", "忽略协议安全和版本", "通信失败不处理"],
+    interview: "面试官会问：MCP 和普通 Function Calling 有什么区别？",
+    questions: [
+      {q:"MCP 主要解决什么？",options:["统一工具接入标准","手机充电","图片压缩","域名解析"],answer:0,explain:"MCP 是工具协议。"},
+      {q:"A2A 主要解决什么？",options:["Agent 之间协作","浏览器渲染","数据库查询","前端动画"],answer:0,explain:"A2A 是 Agent 通信协议。"}
+    ]
+  },
+  "L4:4": {
+    title: "消息队列与结果聚合",
+    summary: "多 Agent 异步任务多了，要有统一收口。",
+    points: [
+      "消息队列解耦生产者和消费者，削峰填谷。",
+      "要处理重复消息、乱序、失败重试和幂等。",
+      "结果聚合要明确超时、缺失和部分失败策略。",
+      "重要任务要有状态追踪和审计。"
+    ],
+    code: "",
+    mistakes: ["不处理重复消息", "结果缺失就无限等", "没有部分失败降级"],
+    interview: "面试官会问：多个 Worker 返回结果时，部分失败怎么处理？",
+    questions: [
+      {q:"消息队列的主要作用是什么？",options:["解耦、削峰、异步","画图","训练模型","管理用户"],answer:0,explain:"消息队列用于异步解耦。"},
+      {q:"部分 Worker 失败时，系统应该？",options:["等所有成功","按策略降级或重试，并返回部分结果","直接崩溃","忽略结果"],answer:1,explain:"要有部分失败策略。"}
+    ]
+  },
+  "L5:0": {
+    title: "FastAPI / Flask 后端接口",
+    summary: "后端接口是 Agent 对外提供服务的窗口。",
+    points: [
+      "FastAPI 支持类型提示、自动文档和异步，适合 AI 服务。",
+      "接口要定义请求、响应、错误码和超时。",
+      "不要把模型逻辑、工具逻辑和路由混在一起。",
+      "生产接口要做鉴权、限流和日志。"
+    ],
+    code: "from fastapi import FastAPI\napp = FastAPI()\n\n@app.post('/chat')\ndef chat(q: str):\n    return {'answer': q}",
+    mistakes: ["路由里写复杂业务", "没有错误返回", "不设超时"],
+    interview: "面试官会问：为什么 FastAPI 适合 AI Agent 服务？",
+    questions: [
+      {q:"FastAPI 的主要优势是什么？",options:["类型提示、自动文档和异步支持","只能写前端","训练模型","管理数据库"],answer:0,explain:"FastAPI 适合 AI 接口。"},
+      {q:"接口为什么要定义错误码？",options:["为了好看","客户端能区分失败原因并处理","为了增加 token","没有原因"],answer:1,explain:"错误码是契约。"}
+    ]
+  },
+  "L5:1": {
+    title: "SQLite / PostgreSQL / Redis",
+    summary: "不同存储解决不同问题，不要什么都塞数据库。",
+    points: [
+      "SQLite 适合本地和小规模，PostgreSQL 适合正式关系型数据。",
+      "Redis 适合缓存、会话、限流计数和短期状态。",
+      "会话状态、向量、结构化数据要分开设计。",
+      "存储要备份、迁移和监控。"
+    ],
+    code: "",
+    mistakes: ["所有数据都放 Redis", "SQLite 直接用于高并发生产", "不设计数据过期"],
+    interview: "面试官会问：Agent 会话状态你会放 Redis 还是 PostgreSQL？为什么？",
+    questions: [
+      {q:"Redis 最适合什么？",options:["缓存和短期状态","大型关系型报表","视频文件","模型权重"],answer:0,explain:"Redis 适合缓存和会话。"},
+      {q:"PostgreSQL 更适合什么？",options:["关系型业务数据","临时计数","文件缓存","前端样式"],answer:0,explain:"正式关系型数据用 PostgreSQL。"}
+    ]
+  },
+  "L5:2": {
+    title: "异步并发、限流、重试、日志",
+    summary: "生产稳定性来自这些看似不酷的工程细节。",
+    points: [
+      "异步并发降低 IO 等待，但并发数要受控。",
+      "限流保护服务，防止过载和恶意请求。",
+      "重试要配合指数退避、最大次数和幂等判断。",
+      "结构化日志方便排查，不能只 print。"
+    ],
+    code: "retry(max_attempts=3, backoff=2)\nasync def call_llm(...):\n    ...",
+    mistakes: ["无限重试", "没有限流", "日志不结构化"],
+    interview: "面试官会问：限流和重试冲突吗？如何平衡？",
+    questions: [
+      {q:"限流的主要目的是什么？",options:["保护服务、防止过载","让系统变慢","增加成本","美化日志"],answer:0,explain:"限流保障稳定。"},
+      {q:"重试为什么要指数退避？",options:["为了更慢","给服务恢复时间，避免雪崩","因为代码要求","没有原因"],answer:1,explain:"退避降低瞬时压力。"}
+    ]
+  },
+  "L5:3": {
+    title: "Docker、云服务、API 网关、域名 HTTPS",
+    summary: "让项目从本地能跑到线上稳定可访问。",
+    points: [
+      "Docker 让环境一致，避免“我电脑能跑”。",
+      "云服务提供托管、扩容和监控。",
+      "API 网关统一鉴权、路由、限流。",
+      "域名和 HTTPS 是生产服务的基本要求。"
+    ],
+    code: "FROM python:3.12\nCOPY . /app\nRUN pip install -r requirements.txt\nCMD [\"python\", \"main.py\"]",
+    mistakes: ["只在本地跑", "证书和密钥写进镜像", "没有健康检查"],
+    interview: "面试官会问：Docker 镜像为什么不能把密钥打进去？",
+    questions: [
+      {q:"Docker 的核心价值是什么？",options:["环境一致、可移植","让代码更短","训练模型","管理数据库"],answer:0,explain:"Docker 解决环境一致性。"},
+      {q:"API 网关主要做什么？",options:["统一鉴权、路由、限流","画图","视频处理","模型训练"],answer:0,explain:"网关是治理入口。"}
+    ]
+  },
+  "L5:4": {
+    title: "监控告警与成本控制",
+    summary: "上线后要看得见，还要算得清钱。",
+    points: [
+      "监控请求量、延迟、错误率、模型 token 和工具调用。",
+      "告警要有阈值、分级和责任人，不能只看不看。",
+      "成本控制从模型选择、缓存、提示词长度和并发量入手。",
+      "定期做成本复盘，而不是月底才发现超支。"
+    ],
+    code: "",
+    mistakes: ["只监控不告警", "忽略 token 成本", "没有预算和复盘"],
+    interview: "面试官会问：如果 Agent 上线后 token 成本突然翻倍，你会怎么排查？",
+    questions: [
+      {q:"Agent 成本突然翻倍，最先看什么？",options:["按钮颜色","请求量、模型选择、提示词长度和工具调用","电脑桌面","天气"],answer:1,explain:"成本来自调用链。"},
+      {q:"告警为什么要分级？",options:["为了好看","不同严重程度不同响应","为了省钱","没有原因"],answer:1,explain:"分级决定处理优先级。"}
+    ]
+  },
+  "L5:5": {
+    title: "评测：准确率 / 幻觉率 / Ragas / Langfuse / Phoenix",
+    summary: "没有评测，就不知道 Agent 到底行不行。",
+    points: [
+      "任务完成率、准确率、幻觉率、延迟、成本都要看。",
+      "Ragas 适合 RAG 的忠实度、答案相关性和上下文相关性。",
+      "Langfuse、Phoenix 做可观测和 tracing。",
+      "建立 bad case 回归集，持续迭代。"
+    ],
+    code: "",
+    mistakes: ["只测准确率不测幻觉", "没有 bad case 集", "评测数据太少"],
+    interview: "面试官会问：RAG 评测中 faithfulness 是什么意思？",
+    questions: [
+      {q:"faithfulness 主要衡量什么？",options:["答案是否忠于检索内容","页面是否好看","模型是否快速","代码是否短"],answer:0,explain:"faithfulness 衡量忠实度。"},
+      {q:"为什么需要 bad case 回归集？",options:["为了好看","防止已有问题再次出现","为了增加数据","没有原因"],answer:1,explain:"回归集保障质量。"}
+    ]
+  },
+  "L5:6": {
+    title: "AgentOps 与 CI/CD / A-B",
+    summary: "像管理软件一样管理 Agent 的生命周期。",
+    points: [
+      "AgentOps 关注上下文、工具执行、任务状态、调试和评测。",
+      "CI/CD 让提示词、代码和配置变更自动测试再上线。",
+      "A-B 测试比较不同模型或提示词的效果。",
+      "版本化是回滚和复现的基础。"
+    ],
+    code: "",
+    mistakes: ["手动改提示词直接上线", "没有版本回滚", "A-B 测试不分流量"],
+    interview: "面试官会问：提示词变更也要走 CI/CD 吗？为什么？",
+    questions: [
+      {q:"AgentOps 的核心是什么？",options:["全生命周期可观测和治理","只做前端","只做销售","只做设计"],answer:0,explain:"AgentOps 管理生命周期。"},
+      {q:"A-B 测试主要用来比较什么？",options:["不同模型或提示词效果","不同颜色","不同字体","不同电脑"],answer:0,explain:"A-B 比较版本效果。"}
+    ]
+  },
+  "L6:0": {
+    title: "Context Engineering",
+    summary: "上下文不是越长越好，而是筛选、压缩、排序出来的。",
+    points: [
+      "输入和输出都占上下文，优先保留高价值信息。",
+      "历史对话要摘要、截断或检索，而不是全部塞入。",
+      "稳定内容放前面，动态内容放后面。",
+      "上下文工程要结合任务目标和 token 成本。"
+    ],
+    code: "",
+    mistakes: ["无限堆历史", "不清理过期信息", "不评估上下文变化的影响"],
+    interview: "面试官会问：上下文窗口固定时，你会如何分配系统提示、历史和工具结果？",
+    questions: [
+      {q:"Context Engineering 的核心是什么？",options:["把上下文塞满","筛选、压缩、排序合适信息","删除所有上下文","只看用户输入"],answer:1,explain:"上下文是设计出来的。"},
+      {q:"长对话历史通常怎么处理？",options:["全部保留","摘要、截断或检索","删除系统提示","只保留最后一句"],answer:1,explain:"历史要管理。"}
+    ]
+  },
+  "L6:1": {
+    title: "MCP 深度使用",
+    summary: "MCP 是工具接入标准，但要做深，就要处理安全、版本和状态。",
+    points: [
+      "MCP 把工具、资源和能力抽象为统一接口。",
+      "Server 端要处理认证、超时、错误和版本兼容。",
+      "工具调用要权限隔离，不能全量开放。",
+      "监控每个 MCP 工具的调用次数和失败率。"
+    ],
+    code: "",
+    mistakes: ["所有工具都通过 MCP 暴露", "不限制工具权限", "版本不兼容不处理"],
+    interview: "面试官会问：MCP 工具突然不可用，Agent 如何降级？",
+    questions: [
+      {q:"MCP 深度使用的关键是什么？",options:["安全、权限、版本和监控","只加工具","忽略错误","不测试"],answer:0,explain:"MCP 要按生产标准治理。"},
+      {q:"MCP 工具不可用时，Agent 应该？",options:["崩溃","降级、重试或告知用户","无限等待","忽略"],answer:1,explain:"要有工具降级。"}
+    ]
+  },
+  "L6:2": {
+    title: "Computer Use",
+    summary: "让 Agent 操作界面，能力更强但风险更高。",
+    points: [
+      "Computer Use 可以点击、输入、看屏幕，适合自动化。",
+      "必须沙箱、权限控制和人工确认。",
+      "屏幕信息要结构化，模型不能直接乱点。",
+      "审计每一次操作，避免误操作无法追溯。"
+    ],
+    code: "",
+    mistakes: ["直接给真实系统最高权限", "不记录操作", "没有沙箱隔离"],
+    interview: "面试官会问：Computer Use 上线前，你会设置哪些安全边界？",
+    questions: [
+      {q:"Computer Use 为什么必须沙箱？",options:["为了好看","限制破坏范围，防止误操作","为了更快","没有原因"],answer:1,explain:"隔离高风险操作。"},
+      {q:"Computer Use 审计日志的作用是什么？",options:["便于追溯和复盘","增加成本","美化界面","没有用"],answer:0,explain:"审计是安全底线。"}
+    ]
+  },
+  "L6:3": {
+    title: "Coding Agent 与 SWE-bench",
+    summary: "理解 AI 编程能力的评估方式，而不是只会吹工具。",
+    points: [
+      "Coding Agent 能读代码、改文件、跑测试、提交修复。",
+      "SWE-bench 用真实 GitHub issue 评估模型解决软件问题的能力。",
+      "要理解 agentic coding 的循环、工具和验证机制。",
+      "面试常问：AI 写的代码你如何 review 和验证。"
+    ],
+    code: "",
+    mistakes: ["盲目信任 AI 代码", "不跑测试", "说不清 SWE-bench 是什么"],
+    interview: "面试官会问：AI 生成代码后，你会做哪些验证？",
+    questions: [
+      {q:"SWE-bench 主要评估什么？",options:["模型解决真实软件问题的能力","页面颜色","视频质量","网络速度"],answer:0,explain:"SWE-bench 评估软件工程能力。"},
+      {q:"AI 生成代码后，最重要的一步是什么？",options:["直接上线","review、测试和验证","截图","保存"],answer:1,explain:"必须验证。"}
+    ]
+  },
+  "L6:4": {
+    title: "Agentic RAG",
+    summary: "RAG 不是一次检索就完，模型可以动态规划检索。",
+    points: [
+      "Agentic RAG 根据问题决定搜什么、搜几次、怎么用结果。",
+      "可以多路检索、迭代查询、引用来源。",
+      "要控制检索成本，设置最大检索次数。",
+      "评估检索路径，而不只看最终答案。"
+    ],
+    code: "",
+    mistakes: ["一次检索就生成", "无限检索", "不评估中间检索质量"],
+    interview: "面试官会问：Agentic RAG 比普通 RAG 增加了什么风险？",
+    questions: [
+      {q:"Agentic RAG 的核心特点是什么？",options:["模型动态规划检索","只做一次关键词搜索","不用向量库","不要工具"],answer:0,explain:"动态检索是核心。"},
+      {q:"Agentic RAG 需要重点控制什么？",options:["检索成本和最大次数","按钮颜色","字体大小","图片数量"],answer:0,explain:"迭代检索会增加成本。"}
+    ]
+  },
+  "L6:5": {
+    title: "Agent 安全：Prompt 注入、沙箱、审计、护栏",
+    summary: "安全是上线前必须想清楚的问题。",
+    points: [
+      "Prompt 注入要把不可信输入和系统指令隔离。",
+      "沙箱限制工具和代码执行环境。",
+      "审计记录谁做了什么、模型调了什么。",
+      "护栏在输入、输出和工具层做规则拦截。"
+    ],
+    code: "",
+    mistakes: ["完全信任用户输入", "没有权限和审计", "只在模型层做安全"],
+    interview: "面试官会问：你会如何在输入、工具、输出三层设计护栏？",
+    questions: [
+      {q:"Prompt 注入防护的核心是什么？",options:["隔离不可信输入与系统指令","加强密码","提高温度","减少工具"],answer:0,explain:"隔离是根本。"},
+      {q:"Agent 安全护栏应放在哪些层？",options:["输入、工具、输出多层","只在前端","只在数据库","只在设计"],answer:0,explain:"多层防护。"}
+    ]
+  },
+  "L7:0": {
+    title: "简历项目包装",
+    summary: "不要写“我学过”，要写“我做过、解决了什么、结果如何”。",
+    points: [
+      "每个项目写清技术栈、问题、你的职责、量化指标。",
+      "用 STAR 结构组织项目经历。",
+      "项目之间要成体系，不要零散。",
+      "删掉和岗位无关的内容。"
+    ],
+    code: "",
+    mistakes: ["只列课程名", "没有量化结果", "项目之间没有逻辑关系"],
+    interview: "面试官会问：请用 1 分钟讲一个最能代表你的项目。",
+    questions: [
+      {q:"简历项目最应该突出什么？",options:["技术栈、问题、职责和量化结果","兴趣爱好","课程表","个人照片"],answer:0,explain:"证明你能解决问题。"},
+      {q:"STAR 中的 A 代表什么？",options:["Action","Agent","Apple","Answer"],answer:0,explain:"STAR = Situation, Task, Action, Result。"}
+    ]
+  },
+  "L7:1": {
+    title: "面试高频题：ReAct / RAG / 记忆 / 多智能体 / 死循环",
+    summary: "高频题都要能配真实项目回答。",
+    points: [
+      "ReAct 讲循环和退出条件。",
+      "RAG 讲分块、检索、重排和幻觉控制。",
+      "记忆讲短期/长期和更新策略。",
+      "多智能体讲架构、通信和结果聚合。",
+      "死循环讲检测和降级。"
+    ],
+    code: "",
+    mistakes: ["只背概念不配项目", "答得太泛", "忽略工程 trade-off"],
+    interview: "面试官会问：请结合你的项目，讲一个你如何处理 Agent 死循环的例子。",
+    questions: [
+      {q:"面试回答 RAG 时，最应该结合什么？",options:["真实项目中的分块、检索和评估","只背定义","只讲工具名","只讲界面"],answer:0,explain:"项目经验最有力。"},
+      {q:"回答技术题时，最重要的是什么？",options:["讲清判断依据和 trade-off","语速快","使用很多英文","不说细节"],answer:0,explain:"大厂看工程判断。"}
+    ]
+  },
+  "L7:2": {
+    title: "工程细节：工具异常、超时、权限、成本",
+    summary: "别人讲概念，你讲工程细节，会非常突出。",
+    points: [
+      "工具异常要反馈、熔断、降级。",
+      "超时要设置并返回可解释错误。",
+      "权限要做白名单和人工确认。",
+      "成本要从模型、缓存、提示词长度和并发控制。"
+    ],
+    code: "",
+    mistakes: ["只讲 happy path", "忽略成本", "没有异常策略"],
+    interview: "面试官会问：如果模型调用超时，但用户还在等，你会怎么做？",
+    questions: [
+      {q:"模型调用超时后，正确做法是什么？",options:["一直等","超时返回、重试或降级","崩溃","删除用户请求"],answer:1,explain:"要有超时和降级。"},
+      {q:"权限控制最核心的是什么？",options:["白名单和最小权限","所有工具全开","没有审计","只靠提示词"],answer:0,explain:"最小权限原则。"}
+    ]
+  },
+  "L7:3": {
+    title: "模拟面试",
+    summary: "录音、复盘、限时回答，比背答案有效。",
+    points: [
+      "准备 1 分钟自我介绍和 3 分钟项目讲解。",
+      "每次只练一个能力点，不要一次塞太多。",
+      "录音后回听，找逻辑断点和口头禅。",
+      "找朋友或 AI 当面试官，模拟真实追问。"
+    ],
+    code: "",
+    mistakes: ["只在心里默背", "不录音不复盘", "没有限时"],
+    interview: "面试官会问：请现在用 1 分钟介绍你自己。",
+    questions: [
+      {q:"模拟面试最有效的做法是什么？",options:["录音、复盘、限时","只看题","不开口","背简历"],answer:0,explain:"刻意练习才有效。"},
+      {q:"项目讲解一般控制在多久？",options:["3 分钟左右","30 分钟","1 小时","无所谓"],answer:0,explain:"短而清晰更重要。"}
+    ]
+  },
+  "L7:4": {
+    title: "实习答辩演练",
+    summary: "答辩就是一次项目汇报：目标、方案、结果、复盘。",
+    points: [
+      "先说目标，再说方案，然后讲结果，最后说复盘和下一步。",
+      "量化结果，展示 trade-off 和踩坑。",
+      "准备 3 个可能被追问的问题。",
+      "不要只展示界面，要讲清技术判断。"
+    ],
+    code: "",
+    mistakes: ["只演示不解释", "没有数据", "不准备追问"],
+    interview: "面试官会问：如果让你重做这个项目，你会改哪里？",
+    questions: [
+      {q:"实习答辩最核心的是什么？",options:["目标、方案、结果、复盘","只展示界面","念稿","不讲数据"],answer:0,explain:"答辩要讲闭环。"},
+      {q:"为什么答辩要准备追问？",options:["因为可能被深挖","因为时间多","为了好看","没有原因"],answer:0,explain:"提前准备追问更稳。"}
+    ]
   }
 };
 
@@ -980,6 +1372,30 @@ const TOPIC_INTERVIEW = {
   "L3:2": {interviewer:"哪些节点适合 HITL？如果人一直不点确认怎么办？", answer:"高风险、不可逆、需要审批的节点适合 HITL。人工超时后要有默认策略，例如暂停、拒绝或走低风险降级路径，并记录审计。"},
   "L3:3": {interviewer:"Pydantic AI 和 LangGraph 分别适合什么场景？", answer:"Pydantic AI 适合强类型、结构化输出和测试；LangGraph 适合复杂状态图、多节点流程和中断恢复。两者可以组合。"},
   "L3:4": {interviewer:"你用 Coze 搭 Agent 时，如果需求超出平台能力怎么办？", answer:"先判断是流程、工具、权限还是模型能力受限，再把关键部分用代码实现，例如 FastAPI 服务或自定义 MCP 工具，最后保留低代码做编排。"}
+  ,
+  "L4:0": {interviewer:"Manager-Worker 架构中，Manager 挂了怎么办？", answer:"任务状态要持久化，Manager 重启后从状态恢复；同时要有重试、超时和降级，不能让 Worker 无限等待。"},
+  "L4:1": {interviewer:"辩论式多 Agent 什么时候不值得用？", answer:"简单任务、低风险任务或对延迟敏感的任务，不应为了辩论而增加成本和复杂度。"},
+  "L4:2": {interviewer:"CrewAI 和 MetaGPT 分别适合什么项目？", answer:"CrewAI 适合角色分工明确的任务流水线；MetaGPT 适合模拟软件团队从需求到交付的完整流程。"},
+  "L4:3": {interviewer:"MCP 和普通 Function Calling 有什么区别？", answer:"Function Calling 是模型直接请求工具，MCP 是统一工具接入协议，强调跨应用标准化、权限和生命周期管理。"},
+  "L4:4": {interviewer:"多个 Worker 返回结果时，部分失败怎么处理？", answer:"定义聚合策略：等待成功子集、重试失败子集、设置超时，并返回部分结果和失败原因，而不是整体卡死。"},
+  "L5:0": {interviewer:"为什么 FastAPI 适合 AI Agent 服务？", answer:"它支持异步、类型提示、自动文档和 Pydantic 校验，适合模型 API、流式输出和快速迭代。"},
+  "L5:1": {interviewer:"Agent 会话状态你会放 Redis 还是 PostgreSQL？", answer:"短期会话和限流计数放 Redis，需要持久化、复杂查询的用户/项目数据放 PostgreSQL。"},
+  "L5:2": {interviewer:"限流和重试冲突吗？如何平衡？", answer:"不冲突但需协同。重试要指数退避并尊重服务端限流提示；客户端也要限流，避免重试风暴。"},
+  "L5:3": {interviewer:"Docker 镜像为什么不能把密钥打进去？", answer:"镜像可能被分发和扫描，密钥会泄露。应在运行时通过环境变量或密钥管理服务注入。"},
+  "L5:4": {interviewer:"如果 Agent 上线后 token 成本突然翻倍，你会怎么排查？", answer:"先看请求量、平均 token 数、模型版本和提示词长度，再查是否关闭缓存、工具调用增加或异常重试。"},
+  "L5:5": {interviewer:"RAG 评测中 faithfulness 是什么意思？", answer:"faithfulness 衡量答案是否忠于检索到的上下文，而不是模型自己编造内容。"},
+  "L5:6": {interviewer:"提示词变更也要走 CI/CD 吗？为什么？", answer:"要。提示词会改变模型行为，必须像代码一样版本化、评测、回归测试，再灰度或 A-B 上线。"},
+  "L6:0": {interviewer:"上下文窗口固定时，你会如何分配系统提示、历史和工具结果？", answer:"先保证系统提示和当前任务，再保留高价值历史摘要，工具结果按相关性压缩，必要时检索替代全量历史。"},
+  "L6:1": {interviewer:"MCP 工具突然不可用，Agent 如何降级？", answer:"捕获错误并反馈给模型，尝试替代工具或返回“暂不可用”，必要时转人工，避免无限重试。"},
+  "L6:2": {interviewer:"Computer Use 上线前，你会设置哪些安全边界？", answer:"沙箱隔离、最小权限、人工确认、操作白名单、超时和完整审计日志。"},
+  "L6:3": {interviewer:"AI 生成代码后，你会做哪些验证？", answer:"代码 review、静态检查、单元测试、集成测试、边界测试，并确认不包含敏感信息或注入风险。"},
+  "L6:4": {interviewer:"Agentic RAG 比普通 RAG 增加了什么风险？", answer:"迭代检索会增加延迟和 token 成本，也可能检索偏离。需要最大检索次数、相关性判断和成本监控。"},
+  "L6:5": {interviewer:"你会如何在输入、工具、输出三层设计护栏？", answer:"输入层过滤注入和敏感词；工具层做权限白名单和沙箱；输出层做格式、事实和合规检查，并记录审计。"},
+  "L7:0": {interviewer:"请用 1 分钟讲一个最能代表你的项目。", answer:"按 STAR：背景一句话、任务一句话、你的行动两句话、结果和量化指标一句话，结尾说明你的收获。"},
+  "L7:1": {interviewer:"请结合你的项目，讲一个你如何处理 Agent 死循环的例子。", answer:"说明如何检测重复动作、设置最大步数、触发降级，并给出最终业务结果。"},
+  "L7:2": {interviewer:"如果模型调用超时，但用户还在等，你会怎么做？", answer:"先返回明确错误或降级结果，后台按策略重试，同时记录超时日志；必要时告知用户稍后重试。"},
+  "L7:3": {interviewer:"请现在用 1 分钟介绍你自己。", answer:"围绕目标岗位：学校/专业、AI/Agent 经历、1 个代表性项目、能带来的价值，不要罗列课程。"},
+  "L7:4": {interviewer:"如果让你重做这个项目，你会改哪里？", answer:"指出当前最大瓶颈，例如检索精度、成本、可观测性或安全，并说明改进方案和预期收益。"}
 };
 
 const TREND_SNAPSHOTS = [
